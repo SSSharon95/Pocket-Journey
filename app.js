@@ -1,0 +1,1 @@
+document.getElementById('shareBtn').onclick=async()=>{if(navigator.share){await navigator.share({title:'Bali Trip',url:location.href})}else alert('Share not supported')}
