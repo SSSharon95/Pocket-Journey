@@ -1,3 +1,4 @@
+// ==================== 隨身翻譯與天氣手動查詢邏輯 ====================
 (function() {
   // 10 個常用旅遊場景的翻譯數據
   const baliTranslations = [
@@ -15,143 +16,24 @@
 
   window.addEventListener('DOMContentLoaded', () => {
     
-    // ----------------- 天氣功能 -----------------
+    // ----------------- 天氣預估查詢 -----------------
     const dateInput = document.getElementById('weatherDate');
     const queryBtn = document.getElementById('queryWeatherBtn');
     const weatherResult = document.getElementById('weatherResult');
 
     if (dateInput && queryBtn && weatherResult) {
-      // 預設填入今日日期
+      // 預設今日日期
       const today = new Date();
       const yyyy = today.getFullYear();
       const mm = String(today.getMonth() + 1).padStart(2, '0');
       const dd = String(today.getDate()).padStart(2, '0');
       dateInput.value = `${yyyy}-${mm}-${dd}`;
 
-      function getPrediction(dateStr) {
+      function calculateWeather(dateStr) {
         if (!dateStr) return;
         const selectedDate = new Date(dateStr);
-        const month = selectedDate.getMonth() + 1;
+        const month = selectedDate.getMonth() + 1; // 1-12
         
-        let info = {};
-        if (month >= 4 && month <= 10) {
-          info = {
-            condition: "☀️ 晴朗乾爽 (乾季)",
-            temp: "29°C",
-            humidity: "62%",
-            rainChance: "15%",
-            wind: "14 km/h 東南風",
-            tip: "巴里島目前正處乾季。天氣舒適、降雨機率低，極度適合潛水與各類戶外探險活動。"
-          };
-        } else {
-          info = {
-            condition: "⛈️ 局部雷陣雨 (雨季)",
-            temp: "31°C",
-            humidity: "84%",
-            rainChance: "75%",
-            wind: "18 km/h 西風",
-            tip: "巴里島正值雨季。午後常伴隨突發強降雨，建議出門隨身攜帶雨具，或多安排 SPA、景觀餐廳等雨備室內行程。"
-          };
-        }
-
-        weatherResult.innerHTML = `
-          <div class="weather-report">
-            <div class="weather-report-header">
-              <span>${dateStr} 預估氣候</span>
-              <span class="weather-report-badge">${info.condition}</span>
-            </div>
-            <div class="weather-report-temp">${info.temp}</div>
-            <div class="weather-report-grid">
-              <div><span>預測降雨：</span><strong>${info.rainChance}</strong></div>
-              <div><span>相對濕度：</span><strong>${info.humidity}</strong></div>
-              <div><span>風向預測：</span><strong>${info.wind}</strong></div>
-              <div><span>出行推薦：</span><strong>${month >= 4 && month <= 10 ? '非常推薦戶外' : '建議搭配雨備'}</strong></div>
-            </div>
-            <div class="weather-report-tips">
-              💡 ${info.tip}
-            </div>
-          </div>
-        `;
-      }
-
-      getPrediction(dateInput.value);
-      queryBtn.addEventListener('click', () => {
-        getPrediction(dateInput.value);
-      });
-    }
-
-    // ----------------- 翻譯功能 -----------------
-    const transSearch = document.getElementById('transSearch');
-    const transList = document.getElementById('translationList');
-
-    if (transList) {
-      function renderTranslations(filter = '') {
-        transList.innerHTML = '';
-        const filtered = baliTranslations.filter(item => {
-          return item.ch.includes(filter) || 
-                 item.category.includes(filter) || 
-                 item.id.toLowerCase().includes(filter.toLowerCase());
-        });
-
-        if (filtered.length === 0) {
-          transList.innerHTML = `<p style="text-align: center; color: #666; font-size: 0.8rem; padding: 12px;">無符合的翻譯語句 🔍</p>`;
-          return;
-        }
-
-        filtered.forEach(item => {
-          const div = document.createElement('div');
-          div.className = 'trans-card-item';
-          div.innerHTML = `
-            <span class="trans-card-tag">${item.category}</span>
-            <button class="trans-copy-btn" title="複製印尼文" data-text="${item.id}">📋</button>
-            <div class="trans-card-ch">${item.ch}</div>
-            <div class="trans-card-id">${item.id}</div>
-            <div class="trans-card-pronounce"><strong>諧音：</strong>${item.pronounce}</div>
-          `;
-          transList.appendChild(div);
-        });
-
-        // 複製按鈕監聽
-        const btns = transList.querySelectorAll('.trans-copy-btn');
-        btns.forEach(btn => {
-          btn.addEventListener('click', () => {
-            const text = btn.getAttribute('data-text');
-            navigator.clipboard.writeText(text).then(() => {
-              btn.textContent = '✅';
-              setTimeout(() => { btn.textContent = '📋'; }, 1200);
-            }).catch(err => console.error(err));
-          });
-        });
-      }
-
-      renderTranslations();
-
-      if (transSearch) {
-        transSearch.addEventListener('input', (e) => {
-          renderTranslations(e.target.value.trim());
-        });
-      }
-    }
-
-    // ----------------- 分享功能 -----------------
-    const shareBtn = document.getElementById('shareBtn');
-    if (shareBtn) {
-      shareBtn.addEventListener('click', () => {
-        if (navigator.share) {
-          navigator.share({
-            title: '🌴 Bali Trip 2026',
-            text: '來看看我的巴里島旅遊隨身助手！',
-            url: window.location.href
-          }).catch(err => console.log(err));
-        } else {
-          navigator.clipboard.writeText(window.location.href).then(() => {
-            alert('連結已複製到剪貼簿，快分享給旅伴吧！');
-          });
-        }
-      });
-    }
-  });
-})();        
         let prediction = {};
         // 4月至10月為乾季，11月至隔年3月為雨季
         if (month >= 4 && month <= 10) {
@@ -175,21 +57,21 @@
         }
 
         weatherResult.innerHTML = `
-          <div class="weather-res-header">
-            <div>
-              <strong style="font-size: 0.85rem;">${dateStr} 預估</strong>
+          <div class="weather-report">
+            <div class="weather-report-header">
+              <span>${dateStr} 預估氣候</span>
+              <span class="weather-report-badge">${prediction.condition}</span>
             </div>
-            <span class="weather-res-badge">${prediction.condition}</span>
-          </div>
-          <div class="weather-res-temp">${prediction.temp}</div>
-          <div class="weather-res-grid">
-            <div><span>降雨率</span><strong>${prediction.rainChance}</strong></div>
-            <div><span>相對濕度</span><strong>${prediction.humidity}</strong></div>
-            <div><span>預測風速</span><strong>${prediction.wind}</strong></div>
-            <div><span>體感狀況</span><strong>${month >= 4 && month <= 10 ? '極其舒適' : '稍顯悶熱'}</strong></div>
-          </div>
-          <div class="weather-res-tips">
-            💡 ${prediction.tip}
+            <div class="weather-report-temp">${prediction.temp}</div>
+            <div class="weather-report-grid">
+              <div><span>預測降雨：</span><strong>${prediction.rainChance}</strong></div>
+              <div><span>相對濕度：</span><strong>${prediction.humidity}</strong></div>
+              <div><span>風向預測：</span><strong>${prediction.wind}</strong></div>
+              <div><span>體感狀況：</span><strong>${month >= 4 && month <= 10 ? '極其舒適' : '稍顯悶熱'}</strong></div>
+            </div>
+            <div class="weather-report-tips">
+              💡 ${prediction.tip}
+            </div>
           </div>
         `;
       }
