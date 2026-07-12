@@ -3,409 +3,485 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bali Summer 2026</title>
+    <title>Bali Journey 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Short+Stack&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
-        
         :root {
-            --bali-blue: #A3D8F4;
-            --bali-sand: #F9F3E7;
-            --bali-green: #76B947;
-            --bali-accent: #FF8C61;
+            --bali-blue: #70A1D7;
+            --bali-light-blue: #A1C4FD;
+            --bali-sand: #F9F7F2;
+            --bali-green: #90BE6D;
+            --bali-orange: #FF8B64;
+            --bali-border: #4A4A4A;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, "PingFang TC", "Noto Sans TC", sans-serif;
             background-color: var(--bali-sand);
             color: #333;
-            padding-bottom: 80px;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .hand-drawn {
-            border-radius: 15px 50px 30px 5px / 5px 20px 10px 40px;
+        h1, h2, .hand-written { font-family: 'Short Stack', 'Noto Sans TC', cursive; }
+
+        /* 手繪感 UI 卡片 */
+        .hand-card {
+            background: white;
+            border: 2px solid var(--bali-border);
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            box-shadow: 4px 4px 0px var(--bali-border);
+            transition: transform 0.2s;
         }
 
-        .nav-active {
-            color: var(--bali-accent);
-            transform: translateY(-5px);
-            transition: all 0.3s ease;
-        }
+        .hand-card:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px var(--bali-border); }
 
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        /* 導航列 */
+        .nav-item.active { color: var(--bali-blue); transform: scale(1.1); }
+        .nav-item.active i { transform: translateY(-4px); transition: 0.3s; }
 
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: 15px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: var(--bali-blue);
-        }
-
-        .category-tag {
-            font-size: 0.7rem;
-            padding: 2px 8px;
-            border-radius: 10px;
-            background: #e0f2fe;
-            color: #0369a1;
+        /* 行程時間軸 */
+        .timeline-line {
+            position: absolute; left: 24px; top: 0; bottom: 0;
+            width: 2px; background: repeating-linear-gradient(to bottom, var(--bali-border), var(--bali-border) 5px, transparent 5px, transparent 10px);
         }
 
         /* 隱藏滾動條 */
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* 快速輸入按鈕 */
+        .quick-amt {
+            border: 1px solid var(--bali-border);
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 12px;
+            background: #fff;
+        }
+
+        /* 類別標籤 */
+        .tag-active { background: var(--bali-blue) !important; color: white !important; border-color: var(--bali-border) !important; }
+
+        /* 彈窗動畫 */
+        .modal-overlay { transition: opacity 0.3s; }
+        .modal-content { transition: transform 0.3s ease-out; }
     </style>
 </head>
-<body>
+<body class="pb-24">
 
-    <!-- Header Banner -->
-    <div class="w-full bg-white shadow-sm overflow-hidden">
-        <img src="https://r2.erweima.ai/i/pT3Y0hC_Q-6oRkIitIOniA.png" alt="Bali Banner" class="w-full h-auto">
+    <!-- Top Banner -->
+    <div class="relative w-full overflow-hidden border-b-2 border-black">
+        <img src="https://r2.erweima.ai/i/pT3Y0hC_Q-6oRkIitIOniA.png" class="w-full h-auto" alt="Bali Banner">
+        <div class="absolute bottom-2 right-4 bg-white/80 px-3 py-1 border border-black rounded-full text-xs font-bold">
+            9/13 - 9/18 🌴
+        </div>
     </div>
 
-    <!-- Main Content -->
-    <main class="p-4">
+    <!-- Main Section -->
+    <main class="px-4 pt-6">
         
-        <!-- 1. 行程分頁 (Itinerary) -->
-        <section id="itinerary" class="tab-content active">
-            <div class="flex overflow-x-auto space-x-4 mb-6 pb-2 no-scrollbar">
-                <button onclick="showDay(1)" class="day-btn flex-shrink-0 w-16 h-16 rounded-full bg-white shadow-md border-2 border-sky-200 flex flex-col items-center justify-center active:bg-sky-100">
-                    <span class="text-xs">9/13</span><span class="font-bold">D1</span>
+        <!-- 分頁 1: 行程 -->
+        <div id="tab-itinerary" class="tab-pane block">
+            <div class="flex overflow-x-auto space-x-3 mb-6 pb-2 no-scrollbar">
+                <button onclick="showDay(1)" class="day-btn flex-shrink-0 w-14 h-14 rounded-2xl border-2 border-black flex flex-col items-center justify-center bg-white shadow-[3px_3px_0px_#000]" id="btn-d1">
+                    <span class="text-[10px]">9/13</span><span class="font-bold">D1</span>
                 </button>
-                <button onclick="showDay(2)" class="day-btn flex-shrink-0 w-16 h-16 rounded-full bg-white shadow-md border-2 border-sky-100 flex flex-col items-center justify-center">
-                    <span class="text-xs">9/14</span><span class="font-bold">D2</span>
+                <button onclick="showDay(2)" class="day-btn flex-shrink-0 w-14 h-14 rounded-2xl border-2 border-black flex flex-col items-center justify-center bg-white shadow-[3px_3px_0px_#000]" id="btn-d2">
+                    <span class="text-[10px]">9/14</span><span class="font-bold">D2</span>
                 </button>
-                <button onclick="showDay(3)" class="day-btn flex-shrink-0 w-16 h-16 rounded-full bg-white shadow-md border-2 border-sky-100 flex flex-col items-center justify-center">
-                    <span class="text-xs">9/15</span><span class="font-bold">D3</span>
+                <button onclick="showDay(3)" class="day-btn flex-shrink-0 w-14 h-14 rounded-2xl border-2 border-black flex flex-col items-center justify-center bg-white shadow-[3px_3px_0px_#000]" id="btn-d3">
+                    <span class="text-[10px]">9/15</span><span class="font-bold">D3</span>
                 </button>
-                <button onclick="showDay(4)" class="day-btn flex-shrink-0 w-16 h-16 rounded-full bg-white shadow-md border-2 border-sky-100 flex flex-col items-center justify-center">
-                    <span class="text-xs">9/16</span><span class="font-bold">D4</span>
+                <button onclick="showDay(4)" class="day-btn flex-shrink-0 w-14 h-14 rounded-2xl border-2 border-black flex flex-col items-center justify-center bg-white shadow-[3px_3px_0px_#000]" id="btn-d4">
+                    <span class="text-[10px]">9/16</span><span class="font-bold">D4</span>
                 </button>
-                <button onclick="showDay(5)" class="day-btn flex-shrink-0 w-16 h-16 rounded-full bg-white shadow-md border-2 border-sky-100 flex flex-col items-center justify-center">
-                    <span class="text-xs">9/17</span><span class="font-bold">D5</span>
+                <button onclick="showDay(5)" class="day-btn flex-shrink-0 w-14 h-14 rounded-2xl border-2 border-black flex flex-col items-center justify-center bg-white shadow-[3px_3px_0px_#000]" id="btn-d5">
+                    <span class="text-[10px]">9/17</span><span class="font-bold">D5</span>
                 </button>
-                <button onclick="showDay(6)" class="day-btn flex-shrink-0 w-16 h-16 rounded-full bg-white shadow-md border-2 border-sky-100 flex flex-col items-center justify-center">
-                    <span class="text-xs">9/18</span><span class="font-bold">D6</span>
+                <button onclick="showDay(6)" class="day-btn flex-shrink-0 w-14 h-14 rounded-2xl border-2 border-black flex flex-col items-center justify-center bg-white shadow-[3px_3px_0px_#000]" id="btn-d6">
+                    <span class="text-[10px]">9/18</span><span class="font-bold">D6</span>
                 </button>
             </div>
 
-            <div id="day-details" class="space-y-6">
-                <!-- 行程內容由 JS 動態生成 -->
+            <div id="itinerary-content" class="relative space-y-8 pl-4">
+                <div class="timeline-line"></div>
+                <!-- JS 動態生成 -->
             </div>
-        </section>
+        </div>
 
-        <!-- 2. 資訊分頁 (Info) -->
-        <section id="info" class="tab-content">
-            <h2 class="text-xl font-bold mb-4 text-sky-700"><i class="fa-solid fa-circle-info mr-2"></i>行前資訊</h2>
+        <!-- 分頁 2: 資訊 -->
+        <div id="tab-info" class="tab-pane hidden space-y-6">
+            <h2 class="text-2xl font-bold hand-written">Information</h2>
             
-            <!-- 匯率 -->
-            <div class="bg-white p-4 rounded-2xl shadow-sm mb-4">
-                <h3 class="font-bold mb-2">💰 匯率換算 (參考 1:480)</h3>
-                <div class="flex items-center space-x-2">
-                    <input type="number" id="twd-input" placeholder="台幣 TWD" class="w-1/2 p-2 border rounded-lg" oninput="convertCurrency('twd')">
-                    <span>⇄</span>
-                    <input type="number" id="idr-input" placeholder="印尼盾 IDR" class="w-1/2 p-2 border rounded-lg" oninput="convertCurrency('idr')">
+            <!-- 匯率工具 -->
+            <div class="hand-card p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="font-bold">💰 實時換算 (1 TWD ≈ 480 IDR)</span>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs block mb-1">台幣 TWD</label>
+                        <input type="number" id="calc-twd" oninput="calcEx('twd')" class="w-full border-b-2 border-black focus:outline-none p-1 text-lg font-bold" value="100">
+                    </div>
+                    <div>
+                        <label class="text-xs block mb-1">印尼盾 IDR</label>
+                        <input type="number" id="calc-idr" oninput="calcEx('idr')" class="w-full border-b-2 border-black focus:outline-none p-1 text-lg font-bold">
+                    </div>
                 </div>
             </div>
 
-            <!-- 住宿 -->
-            <div class="bg-white p-4 rounded-2xl shadow-sm mb-4">
-                <h3 class="font-bold mb-2">🏨 住宿訂單</h3>
-                <div class="text-sm space-y-2">
-                    <p class="border-b pb-1"><strong>9/13-9/16:</strong> Discovery Kartika Plaza<br><a href="https://maps.app.goo.gl/uXv7V9oXoU7Z1Y1fA" class="text-blue-500">Google Map 連結</a></p>
-                    <p><strong>9/16-9/18:</strong> The Vira Bali Boutique<br><a href="https://maps.app.goo.gl/328713492a76fb81" class="text-blue-500">Google Map 連結</a></p>
-                </div>
-            </div>
-
-            <!-- 翻譯 -->
-            <div class="bg-white p-4 rounded-2xl shadow-sm">
-                <h3 class="font-bold mb-2">🗣️ 常用印尼語</h3>
-                <div class="text-sm space-y-2" id="translation-list">
+            <!-- 翻譯清單 -->
+            <div class="hand-card p-4">
+                <h3 class="font-bold mb-3">🗣️ 常用旅遊印尼語</h3>
+                <div id="phrase-list" class="space-y-2 text-sm">
                     <!-- JS 生成 -->
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- 3. 清單分頁 (Luggage) -->
-        <section id="luggage" class="tab-content">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-sky-700">🧳 行李清單</h2>
-                <button onclick="toggleAddLuggage()" class="bg-sky-500 text-white px-3 py-1 rounded-full text-sm">+ 新增</button>
-            </div>
-            
-            <div id="luggage-categories" class="space-y-4">
-                <!-- 由 JS 動態生成分類 -->
-            </div>
-        </section>
-
-        <!-- 4. 記帳分頁 (Accounting) -->
-        <section id="accounting" class="tab-content">
-            <div class="bg-sky-500 text-white p-6 rounded-3xl mb-6 shadow-lg relative">
-                <p class="text-sm opacity-80">總花費 (IDR)</p>
-                <h1 id="total-expense" class="text-3xl font-bold">0</h1>
-                <p id="total-expense-twd" class="text-xs mt-1">≈ NT$ 0</p>
-                <i class="fa-solid fa-wallet absolute right-6 top-8 text-4xl opacity-20"></i>
+        <!-- 分頁 3: 清單 -->
+        <div id="tab-luggage" class="tab-pane hidden">
+            <div class="flex justify-between items-end mb-4">
+                <h2 class="text-2xl font-bold hand-written">Checklist</h2>
+                <button onclick="openLuggageModal()" class="w-10 h-10 bg-black text-white rounded-full text-xl flex items-center justify-center shadow-lg">+</button>
             </div>
 
-            <div id="expense-list" class="space-y-3">
-                <!-- 記帳項目動態生成 -->
+            <!-- 分類過濾器 -->
+            <div class="flex overflow-x-auto space-x-2 mb-6 pb-2 no-scrollbar" id="luggage-filter">
+                <button onclick="filterLuggage('All')" class="flex-shrink-0 px-4 py-1 rounded-full border border-black text-xs font-bold tag-active">全部</button>
+                <button onclick="filterLuggage('重要證件')" class="flex-shrink-0 px-4 py-1 rounded-full border border-black text-xs font-bold bg-white">證件</button>
+                <button onclick="filterLuggage('生活用品')" class="flex-shrink-0 px-4 py-1 rounded-full border border-black text-xs font-bold bg-white">生活</button>
+                <button onclick="filterLuggage('數碼產品')" class="flex-shrink-0 px-4 py-1 rounded-full border border-black text-xs font-bold bg-white">數碼</button>
+                <button onclick="filterLuggage('衣物鞋包')" class="flex-shrink-0 px-4 py-1 rounded-full border border-black text-xs font-bold bg-white">衣物</button>
+                <button onclick="filterLuggage('醫療常備')" class="flex-shrink-0 px-4 py-1 rounded-full border border-black text-xs font-bold bg-white">醫療</button>
+                <button onclick="filterLuggage('購物清單')" class="flex-shrink-0 px-4 py-1 rounded-full border border-black text-xs font-bold bg-white">購物</button>
+            </div>
+
+            <div id="luggage-items" class="grid grid-cols-1 gap-3">
+                <!-- JS 動態生成 -->
+            </div>
+        </div>
+
+        <!-- 分頁 4: 記帳 -->
+        <div id="tab-accounting" class="tab-pane hidden">
+            <div class="hand-card p-6 bg-sky-100 mb-6 relative overflow-hidden">
+                <div class="relative z-10">
+                    <p class="text-xs uppercase font-bold opacity-60">Total Expense</p>
+                    <h1 class="text-4xl font-bold hand-written" id="total-display">0</h1>
+                    <p class="text-sm mt-1" id="total-twd-display">≈ NT$ 0</p>
+                </div>
+                <i class="fa-solid fa-palm-tree absolute -right-4 -bottom-4 text-7xl text-sky-200 opacity-50"></i>
+            </div>
+
+            <div id="expense-list" class="space-y-4">
+                <!-- JS 動態生成 -->
             </div>
 
             <!-- Floating Action Button -->
-            <button onclick="toggleAddExpense()" class="fixed right-6 bottom-24 bg-orange-500 text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-2xl z-50">
+            <button onclick="openExpenseModal()" class="fixed right-6 bottom-24 w-16 h-16 bg-orange-500 border-2 border-black text-white rounded-full shadow-[4px_4px_0px_#000] text-3xl flex items-center justify-center z-50 active:translate-y-1">
                 <i class="fa-solid fa-plus"></i>
             </button>
-        </section>
+        </div>
 
     </main>
 
-    <!-- Navigation -->
-    <nav class="fixed bottom-0 w-full bg-white border-t border-gray-200 flex justify-around py-3 pb-6 z-40">
-        <button onclick="switchTab('itinerary')" class="nav-btn nav-active flex flex-col items-center">
+    <!-- Nav Bar -->
+    <nav class="fixed bottom-0 w-full bg-white border-t-2 border-black flex justify-around py-3 pb-8 z-[100]">
+        <button onclick="switchTab('itinerary')" class="nav-item active flex flex-col items-center">
             <i class="fa-solid fa-map-location-dot text-xl"></i>
-            <span class="text-[10px] mt-1">每日行程</span>
+            <span class="text-[10px] mt-1 font-bold">行程</span>
         </button>
-        <button onclick="switchTab('info')" class="nav-btn flex flex-col items-center text-gray-400">
+        <button onclick="switchTab('info')" class="nav-item flex flex-col items-center text-gray-400">
             <i class="fa-solid fa-circle-info text-xl"></i>
-            <span class="text-[10px] mt-1">實用資訊</span>
+            <span class="text-[10px] mt-1 font-bold">資訊</span>
         </button>
-        <button onclick="switchTab('luggage')" class="nav-btn flex flex-col items-center text-gray-400">
-            <i class="fa-solid fa-suitcase text-xl"></i>
-            <span class="text-[10px] mt-1">行李清單</span>
+        <button onclick="switchTab('luggage')" class="nav-item flex flex-col items-center text-gray-400">
+            <i class="fa-solid fa-clipboard-list text-xl"></i>
+            <span class="text-[10px] mt-1 font-bold">清單</span>
         </button>
-        <button onclick="switchTab('accounting')" class="nav-btn flex flex-col items-center text-gray-400">
-            <i class="fa-solid fa-calculator text-xl"></i>
-            <span class="text-[10px] mt-1">記帳分帳</span>
+        <button onclick="switchTab('accounting')" class="nav-item flex flex-col items-center text-gray-400">
+            <i class="fa-solid fa-wallet text-xl"></i>
+            <span class="text-[10px] mt-1 font-bold">記帳</span>
         </button>
     </nav>
 
-    <!-- Modals (Add Expense/Luggage) - Simplified for Single File -->
-    <div id="modal-expense" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
-        <div class="bg-white w-full rounded-3xl p-6">
-            <h3 class="font-bold text-lg mb-4">新增支出</h3>
-            <input type="text" id="exp-name" placeholder="花費名稱" class="w-full p-3 border rounded-xl mb-3">
-            <div class="flex space-x-2 mb-3">
-                <select id="exp-cat" class="w-1/2 p-3 border rounded-xl">
-                    <option>餐飲</option><option>交通</option><option>住宿</option><option>門票</option><option>購物</option><option>其他</option>
+    <!-- Modal: Add Expense -->
+    <div id="modal-expense" class="fixed inset-0 bg-black/60 hidden z-[200] modal-overlay flex items-center justify-center p-6">
+        <div class="bg-white border-2 border-black rounded-3xl w-full p-6 modal-content">
+            <h3 class="text-xl font-bold mb-4 hand-written">Add Expense</h3>
+            <div class="space-y-4">
+                <input type="text" id="acc-name" placeholder="花費項目" class="w-full border-b border-black p-2 focus:outline-none">
+                <div class="flex items-center space-x-2">
+                    <input type="number" id="acc-amount" placeholder="金額 (IDR)" class="flex-1 border-b border-black p-2 focus:outline-none font-bold text-orange-600">
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="addQuickAmt(50000)" class="quick-amt">+50k</button>
+                    <button onclick="addQuickAmt(100000)" class="quick-amt">+100k</button>
+                    <button onclick="addQuickAmt(500000)" class="quick-amt">+500k</button>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <select id="acc-cat" class="border border-black rounded-lg p-2 text-sm">
+                        <option>飲食</option><option>交通</option><option>景點</option><option>購物</option><option>按摩</option><option>其他</option>
+                    </select>
+                    <div class="flex items-center space-x-1 border border-black rounded-lg p-2">
+                        <span class="text-xs">分帳:</span>
+                        <input type="number" id="acc-people" value="4" class="w-full text-center focus:outline-none">
+                        <span class="text-xs">人</span>
+                    </div>
+                </div>
+                <div class="flex space-x-3 mt-6">
+                    <button onclick="closeModal('modal-expense')" class="flex-1 py-3 rounded-xl border border-black font-bold">Cancel</button>
+                    <button onclick="saveExpense()" class="flex-1 py-3 rounded-xl bg-black text-white font-bold">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add Luggage -->
+    <div id="modal-luggage" class="fixed inset-0 bg-black/60 hidden z-[200] modal-overlay flex items-center justify-center p-6">
+        <div class="bg-white border-2 border-black rounded-3xl w-full p-6 modal-content">
+            <h3 class="text-xl font-bold mb-4 hand-written">New Item</h3>
+            <div class="space-y-4">
+                <input type="text" id="lug-name" placeholder="物品名稱" class="w-full border-b border-black p-2 focus:outline-none">
+                <select id="lug-cat" class="w-full border border-black rounded-lg p-3">
+                    <option>重要證件</option><option>生活用品</option><option>數碼產品</option><option>衣物鞋包</option><option>醫療常備</option><option>購物清單</option>
                 </select>
-                <input type="number" id="exp-amount" placeholder="金額 (IDR)" class="w-1/2 p-3 border rounded-xl">
-            </div>
-            <div class="flex items-center mb-4 text-sm">
-                <label class="mr-2">參與平分人數:</label>
-                <input type="number" id="exp-people" value="4" class="w-16 p-2 border rounded-lg">
-            </div>
-            <div class="flex space-x-3">
-                <button onclick="toggleAddExpense()" class="flex-1 py-3 rounded-xl bg-gray-100">取消</button>
-                <button onclick="saveExpense()" class="flex-1 py-3 rounded-xl bg-orange-500 text-white">儲存</button>
+                <div class="flex space-x-3 mt-6">
+                    <button onclick="closeModal('modal-luggage')" class="flex-1 py-3 rounded-xl border border-black font-bold">Cancel</button>
+                    <button onclick="saveLuggage()" class="flex-1 py-3 rounded-xl bg-sky-500 text-white font-bold">Add</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        const rate = 480;
+
+        // Data Storage
+        let expenses = JSON.parse(localStorage.getItem('bali_expenses')) || [];
+        let luggage = JSON.parse(localStorage.getItem('bali_luggage')) || [
+            { id: 1, cat: '重要證件', name: '護照', checked: false },
+            { id: 2, cat: '重要證件', name: '機票訂單', checked: false },
+            { id: 3, cat: '生活用品', name: '防曬乳', checked: false },
+            { id: 4, cat: '數碼產品', name: '萬國轉接頭', checked: false },
+            { id: 5, cat: '購物清單', name: 'Ellips 護髮油', checked: false }
+        ];
+
         const itineraryData = {
             1: [
-                { time: "00:55", title: "搭機/轉機", desc: "酷航 TR875 -> TR280 (10:20 抵達)", icon: "✈️" },
-                { time: "11:30", title: "前往飯店", desc: "Discovery Kartika Plaza", map: "https://maps.app.goo.gl/uXv7V9oXoU7Z1Y1fA", transport: "Grab/30min", icon: "🏨" },
-                { time: "12:30", title: "午餐：Made's Warung", desc: "經典印尼料理", map: "https://maps.app.goo.gl/YyR9Qv6K7Yp", icon: "🍴" },
-                { time: "14:00", title: "逛市集", desc: "庫塔海濱或藝術市集", icon: "🛍️" },
-                { time: "17:00", title: "庫塔海灘夕陽", desc: "散步與享受美景", map: "https://maps.app.goo.gl/3VvU8X7XF7XF7XF7", icon: "🌅" }
+                { time: "10:20", title: "抵達峇里島 (DPS)", desc: "辦理入境與領取行李", icon: "🛬", type: "transport" },
+                { time: "12:30", title: "Made's Warung 午餐", desc: "必吃經典印尼菜", map: "https://maps.app.goo.gl/uXv7V9oXoU7Z1Y1fA", icon: "🍴" },
+                { time: "14:00", title: "庫塔市集巡禮", desc: "La Brisa 或洋人街市集", icon: "🛍️", transport: "Grab 15min" },
+                { time: "17:00", title: "Kuta Beach 夕陽", desc: "在庫塔海灘散步", icon: "🌅" }
             ],
             2: [
-                { time: "08:30", title: "前往烏布", desc: "德哥拉朗梯田 (包車)", map: "https://maps.app.goo.gl/梯田連結", transport: "包車/2hr", icon: "🌴" },
-                { time: "12:30", title: "午餐：髒鴨餐", desc: "Bebek Tepi Sawah", map: "https://maps.app.goo.gl/髒鴨餐", icon: "🦆" },
-                { time: "16:30", title: "金字塔音療", desc: "Sound Healing 體驗", icon: "🧘" }
+                { time: "08:30", title: "全日包車出發", desc: "前往烏布區域", icon: "🚗" },
+                { time: "10:30", title: "Tegalalang 梯田", desc: "網美盪鞦韆時間", map: "https://maps.app.goo.gl/uXv7V9oXoU7Z1Y1fA", icon: "🌴" },
+                { time: "16:30", title: "金字塔音療", desc: "Pyramids of Chi Sound Healing", icon: "🧘" }
             ],
             3: [
-                { time: "11:30", title: "水明漾午餐", desc: "Sisterfields Rice", map: "https://maps.app.goo.gl/Sisterfields", icon: "☕" },
-                { time: "15:30", title: "海神廟 Tanah Lot", desc: "日落與聖廟景色", map: "https://maps.app.goo.gl/海神廟", transport: "Grab/1hr", icon: "⛩️" }
+                { time: "11:30", title: "Sisterfields 午餐", desc: "水明漾區超夯早午餐", icon: "☕" },
+                { time: "16:30", title: "海神廟日落", desc: "Tanah Lot 觀賞壯觀海景", map: "https://maps.app.goo.gl/uXv7V9oXoU7Z1Y1fA", icon: "⛩️" }
             ],
             4: [
-                { time: "10:00", title: "換飯店", desc: "移至 The Vira Bali", map: "https://maps.app.goo.gl/ViraBali", icon: "🧳" },
-                { time: "14:00", title: "烏魯瓦圖神廟", desc: "斷崖絕景", map: "https://maps.app.goo.gl/Uluwatu", transport: "Grab/1hr", icon: "🐒" },
-                { time: "16:30", title: "Malini 懸崖餐廳", desc: "夕陽晚餐", map: "https://maps.app.goo.gl/Malini", icon: "🍽️" }
+                { time: "10:00", title: "更換飯店", desc: "移動至 The Vira Bali", icon: "🧳" },
+                { time: "14:00", title: "烏魯瓦圖斷崖", desc: "Uluwatu Temple 壯麗海崖", icon: "🐒" },
+                { time: "16:30", title: "Malini 懸崖餐廳", desc: "絕美日落晚餐", icon: "🍷" }
             ],
             5: [
-                { time: "14:00", title: "峇里島 SPA", desc: "放鬆舒壓 2 小時", icon: "💆" },
-                { time: "16:30", title: "Krisna 採買", desc: "伴手禮大採購", map: "https://maps.app.goo.gl/Krisna", icon: "🎁" }
+                { time: "14:00", title: "峇里島 SPA 體驗", desc: "安排 2 小時全身按摩", icon: "💆" },
+                { time: "16:30", title: "Krisna 採買", desc: "24小時伴手禮大採購", icon: "🎁" }
             ],
             6: [
-                { time: "13:00", title: "前往機場", desc: "飯店接駁車", transport: "Hotel Shuttle/15min", icon: "🚐" },
-                { time: "15:55", title: "返程航班", desc: "華航 CI772 直飛台北", icon: "✈️" }
+                { time: "13:00", title: "前往機場", desc: "飯店接駁車至機場", icon: "🚐" },
+                { time: "15:55", title: "華航 CI772 啟程", desc: "預計 21:20 抵台", icon: "✈️" }
             ]
         };
 
-        const luggageData = [
-            { cat: "重要證件", items: ["護照", "機票影本", "e-VOA列印", "入境ECD QR", "飯店憑證"] },
-            { cat: "生活用品", items: ["防曬乳", "墨鏡", "泳裝", "夾腳拖", "防水袋"] },
-            { cat: "數碼產品", items: ["萬國轉接頭", "行動電源", "網卡", "防水手機殼"] },
-            { cat: "衣物鞋包", items: ["薄外套", "沙龍/長裙", "運動鞋", "換洗衣物"] },
-            { cat: "醫療常備", items: ["止瀉藥", "防蚊液", "感冒止痛", "OK蹦"] }
-        ];
-
         const phrases = [
-            ["你好", "Halo / Salam"],
-            ["謝謝", "Terima Kasih"],
-            ["不客氣", "Sama-sama"],
-            ["多少錢？", "Berapa harganya?"],
-            ["太貴了", "Terlalu mahal"],
-            ["可以便宜點嗎？", "Boleh kurang?"],
-            ["我要去...", "Saya mau ke..."],
-            ["我不吃辣", "Saya tidak mau pedas"],
-            ["洗手間在哪？", "Di mana toilet?"],
+            ["你好", "Halo / Salam"], ["謝謝", "Terima Kasih"], ["不客氣", "Sama-sama"],
+            ["多少錢？", "Berapa harganya?"], ["太貴了", "Terlalu mahal"],
+            ["可以便宜點嗎？", "Boleh kurang?"], ["我要去...", "Saya mau ke..."],
+            ["我不吃辣", "Saya tidak mau pedas"], ["洗手間在哪？", "Di mana toilet?"],
             ["救命！", "Tolong!"]
         ];
 
-        let expenses = JSON.parse(localStorage.getItem('baliExpenses')) || [];
-        let checkedLuggage = JSON.parse(localStorage.getItem('baliLuggage')) || {};
+        // --- Core Functions ---
 
-        // Tab Switching
         function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active', 'text-sky-500'));
-            event.currentTarget.classList.add('nav-active', 'text-sky-500');
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active', 'text-sky-500'));
+            event.currentTarget.classList.add('active');
+            
+            if(tabId === 'itinerary') showDay(1);
+            if(tabId === 'luggage') renderLuggage();
+            if(tabId === 'accounting') updateAccounting();
         }
 
-        // Itinerary Rendering
+        // Itinerary
         function showDay(day) {
-            const container = document.getElementById('day-details');
-            document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('bg-sky-200', 'border-sky-300'));
-            event.currentTarget.classList.add('bg-sky-200', 'border-sky-300');
-            
-            let html = `<h2 class="text-lg font-bold text-sky-800">Day ${day} 行程重點</h2>`;
+            const container = document.getElementById('itinerary-content');
+            document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('bg-sky-200', 'translate-y-1'));
+            document.getElementById(`btn-d${day}`).classList.add('bg-sky-200', 'translate-y-1');
+
+            let html = `<div class="timeline-line"></div>`;
             itineraryData[day].forEach(item => {
                 html += `
-                <div class="relative pl-8 timeline-item">
-                    <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-sky-400">
-                        <div class="flex justify-between items-start">
-                            <span class="text-xs font-bold text-sky-500">${item.time}</span>
-                            <span class="text-lg">${item.icon}</span>
+                <div class="relative pl-10">
+                    <div class="absolute left-[13px] top-1 w-6 h-6 bg-white border-2 border-black rounded-full z-10 flex items-center justify-center text-[10px]">${item.icon}</div>
+                    <div class="hand-card p-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-bold text-sky-600">${item.time}</span>
                         </div>
-                        <h3 class="font-bold text-gray-800">${item.title}</h3>
-                        <p class="text-sm text-gray-500 mt-1">${item.desc}</p>
-                        ${item.transport ? `<div class="mt-2 text-[10px] text-orange-500 font-medium">🚗 ${item.transport}</div>` : ''}
-                        ${item.map ? `<a href="${item.map}" target="_blank" class="mt-3 inline-block bg-sky-50 text-sky-600 px-4 py-1 rounded-full text-xs border border-sky-200 font-bold"><i class="fa-solid fa-location-arrow mr-1"></i>導航</a>` : ''}
+                        <h4 class="font-bold text-gray-800">${item.title}</h4>
+                        <p class="text-xs text-gray-500 mt-1">${item.desc}</p>
+                        ${item.transport ? `<p class="text-[10px] text-orange-500 font-bold mt-2">🚗 ${item.transport}</p>` : ''}
+                        ${item.map ? `<a href="${item.map}" target="_blank" class="mt-3 inline-block bg-sky-50 text-sky-600 px-3 py-1 rounded-full text-[10px] border border-black font-bold">Open Map</a>` : ''}
                     </div>
                 </div>`;
             });
             container.innerHTML = html;
         }
 
-        // Currency Converter
-        function convertCurrency(type) {
-            const rate = 480;
-            if(type === 'twd') {
-                const val = document.getElementById('twd-input').value;
-                document.getElementById('idr-input').value = Math.round(val * rate);
-            } else {
-                const val = document.getElementById('idr-input').value;
-                document.getElementById('twd-input').value = (val / rate).toFixed(0);
+        // Accounting
+        function openExpenseModal() { document.getElementById('modal-expense').classList.remove('hidden'); }
+        function addQuickAmt(v) { 
+            const input = document.getElementById('acc-amount');
+            input.value = (parseInt(input.value) || 0) + v;
+        }
+        function saveExpense() {
+            const name = document.getElementById('acc-name').value;
+            const amount = parseInt(document.getElementById('acc-amount').value);
+            const cat = document.getElementById('acc-cat').value;
+            const people = parseInt(document.getElementById('acc-people').value) || 4;
+
+            if(!name || !amount) return alert('請輸入完整資訊');
+
+            expenses.unshift({ id: Date.now(), name, amount, cat, people, date: new Date().toLocaleDateString() });
+            localStorage.setItem('bali_expenses', JSON.stringify(expenses));
+            closeModal('modal-expense');
+            updateAccounting();
+        }
+
+        function updateAccounting() {
+            const list = document.getElementById('expense-list');
+            let total = 0;
+            list.innerHTML = '';
+            
+            expenses.forEach(ex => {
+                total += ex.amount;
+                const perIDR = Math.round(ex.amount / ex.people);
+                const perTWD = Math.round(perIDR / rate);
+                list.innerHTML += `
+                <div class="hand-card p-4 flex justify-between items-center relative">
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-[10px] bg-gray-100 border border-black px-1 rounded">${ex.cat}</span>
+                            <span class="text-[10px] text-gray-400">${ex.date}</span>
+                        </div>
+                        <h4 class="font-bold text-sm">${ex.name}</h4>
+                        <p class="text-[10px] text-gray-400">Total: ${ex.amount.toLocaleString()} IDR / ${ex.people}人</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-orange-500">NT$ ${perTWD}</p>
+                        <p class="text-[10px]">${perIDR.toLocaleString()} IDR / 人</p>
+                    </div>
+                    <button onclick="deleteExp(${ex.id})" class="ml-2 text-gray-300"><i class="fa-solid fa-circle-xmark"></i></button>
+                </div>`;
+            });
+            document.getElementById('total-display').innerText = total.toLocaleString();
+            document.getElementById('total-twd-display').innerText = `≈ NT$ ${Math.round(total/rate).toLocaleString()}`;
+        }
+
+        function deleteExp(id) {
+            if(confirm('確定刪除此筆記錄？')) {
+                expenses = expenses.filter(e => e.id !== id);
+                localStorage.setItem('bali_expenses', JSON.stringify(expenses));
+                updateAccounting();
             }
         }
 
-        // Luggage Logic
+        // Luggage
+        let currentFilter = 'All';
         function renderLuggage() {
-            const container = document.getElementById('luggage-categories');
+            const container = document.getElementById('luggage-items');
             container.innerHTML = '';
-            luggageData.forEach(cat => {
-                const total = cat.items.length;
-                const checkedCount = cat.items.filter(i => checkedLuggage[i]).length;
-                
-                let itemsHtml = cat.items.map(item => `
-                    <div class="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg mb-2">
-                        <input type="checkbox" ${checkedLuggage[item] ? 'checked' : ''} onchange="toggleItem('${item}')" class="w-5 h-5 accent-sky-500">
-                        <span class="text-sm ${checkedLuggage[item] ? 'line-through text-gray-400' : ''}">${item}</span>
-                    </div>
-                `).join('');
-
+            
+            const filtered = luggage.filter(l => currentFilter === 'All' || l.cat === currentFilter);
+            
+            // 計算各類別進度
+            const categories = ['重要證件', '生活用品', '數碼產品', '衣物鞋包', '醫療常備', '購物清單'];
+            
+            filtered.forEach(item => {
                 container.innerHTML += `
-                    <div class="bg-white p-4 rounded-2xl shadow-sm">
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="font-bold text-sky-800">${cat.cat}</h3>
-                            <span class="text-[10px] bg-sky-100 px-2 py-1 rounded-full">${checkedCount}/${total}</span>
-                        </div>
-                        ${itemsHtml}
+                <div class="flex items-center p-3 bg-white border-2 border-black rounded-xl shadow-[2px_2px_0px_#000]">
+                    <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleLug(${item.id})" class="w-6 h-6 border-2 border-black rounded accent-sky-500">
+                    <div class="ml-3 flex-1">
+                        <span class="text-xs text-gray-400 block" style="font-size:8px">${item.cat}</span>
+                        <span class="${item.checked ? 'line-through text-gray-400' : 'font-bold'}">${item.name}</span>
                     </div>
-                `;
+                    <button onclick="deleteLug(${item.id})" class="text-gray-200"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                </div>`;
             });
         }
 
-        function toggleItem(item) {
-            checkedLuggage[item] = !checkedLuggage[item];
-            localStorage.setItem('baliLuggage', JSON.stringify(checkedLuggage));
+        function filterLuggage(cat) {
+            currentFilter = cat;
+            document.querySelectorAll('#luggage-filter button').forEach(b => {
+                b.classList.remove('tag-active');
+                if(b.innerText.includes(cat.slice(0,2)) || (cat==='All' && b.innerText==='全部')) b.classList.add('tag-active');
+            });
             renderLuggage();
         }
 
-        // Accounting Logic
-        function saveExpense() {
-            const name = document.getElementById('exp-name').value;
-            const amount = parseFloat(document.getElementById('exp-amount').value);
-            const cat = document.getElementById('exp-cat').value;
-            const people = parseInt(document.getElementById('exp-people').value) || 4;
-            
-            if(!name || !amount) return;
-
-            expenses.unshift({ name, amount, cat, people, date: new Date().toLocaleDateString() });
-            localStorage.setItem('baliExpenses', JSON.stringify(expenses));
-            updateExpenseUI();
-            toggleAddExpense();
+        function toggleLug(id) {
+            const item = luggage.find(l => l.id === id);
+            item.checked = !item.checked;
+            localStorage.setItem('bali_luggage', JSON.stringify(luggage));
+            renderLuggage();
         }
 
-        function updateExpenseUI() {
-            const list = document.getElementById('expense-list');
-            let totalIDR = 0;
-            list.innerHTML = '';
-            
-            expenses.forEach((ex, idx) => {
-                totalIDR += ex.amount;
-                const perPersonIDR = Math.round(ex.amount / ex.people);
-                const perPersonTWD = Math.round(perPersonIDR / 480);
-
-                list.innerHTML += `
-                    <div class="bg-white p-4 rounded-2xl shadow-sm flex justify-between items-center relative">
-                        <div>
-                            <span class="text-[10px] text-gray-400">${ex.date}</span>
-                            <h4 class="font-bold">${ex.name}</h4>
-                            <p class="text-[10px] text-orange-500">總額: ${ex.amount.toLocaleString()} IDR (${ex.people}人分)</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="font-bold text-sky-600">一人 ≈ NT$ ${perPersonTWD}</p>
-                            <p class="text-[10px] text-gray-400">${perPersonIDR.toLocaleString()} IDR</p>
-                        </div>
-                        <button onclick="deleteExpense(${idx})" class="absolute -top-2 -right-2 bg-red-400 text-white w-5 h-5 rounded-full text-[10px]"><i class="fa-solid fa-xmark"></i></button>
-                    </div>
-                `;
-            });
-
-            document.getElementById('total-expense').innerText = totalIDR.toLocaleString();
-            document.getElementById('total-expense-twd').innerText = `≈ NT$ ${Math.round(totalIDR / 480).toLocaleString()}`;
+        function openLuggageModal() { document.getElementById('modal-luggage').classList.remove('hidden'); }
+        function saveLuggage() {
+            const name = document.getElementById('lug-name').value;
+            const cat = document.getElementById('lug-cat').value;
+            if(!name) return;
+            luggage.push({ id: Date.now(), cat, name, checked: false });
+            localStorage.setItem('bali_luggage', JSON.stringify(luggage));
+            closeModal('modal-luggage');
+            renderLuggage();
+        }
+        function deleteLug(id) {
+            luggage = luggage.filter(l => l.id !== id);
+            localStorage.setItem('bali_luggage', JSON.stringify(luggage));
+            renderLuggage();
         }
 
-        function deleteExpense(idx) {
-            expenses.splice(idx, 1);
-            localStorage.setItem('baliExpenses', JSON.stringify(expenses));
-            updateExpenseUI();
+        // Utils
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function calcEx(type) {
+            if(type === 'twd') {
+                const v = document.getElementById('calc-twd').value;
+                document.getElementById('calc-idr').value = v * rate;
+            } else {
+                const v = document.getElementById('calc-idr').value;
+                document.getElementById('calc-twd').value = Math.round(v / rate);
+            }
         }
 
-        function toggleAddExpense() {
-            document.getElementById('modal-expense').classList.toggle('hidden');
-        }
-
-        // Initialization
+        // Init
         window.onload = () => {
             showDay(1);
-            renderLuggage();
-            updateExpenseUI();
-            
-            // Render Translations
-            const transList = document.getElementById('translation-list');
+            const pl = document.getElementById('phrase-list');
             phrases.forEach(p => {
-                transList.innerHTML += `<div class="flex justify-between border-b border-dashed py-1"><span>${p[0]}</span><span class="text-sky-600 font-medium">${p[1]}</span></div>`;
+                pl.innerHTML += `<div class="flex justify-between border-b border-black/5 pb-1"><span>${p[0]}</span><span class="font-bold text-sky-600">${p[1]}</span></div>`;
             });
+            calcEx('twd');
         };
+
     </script>
 </body>
 </html>
